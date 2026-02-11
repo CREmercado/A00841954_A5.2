@@ -4,10 +4,15 @@ This program reads a price catalogue and a sales record from JSON files,
 computes the cost for all sales, and generates a detailed report.
 It includes error handling for file operations and data validation.
 
+Features:
+    - Loads and parses JSON files for catalogue and sales records
+    - Creates a price mapping from the catalogue
+    - Computes total sales cost based on the sales records and price mapping
+    - Formats the output report with details of each sale and total cost
 
 Example:
     Basic usage from command line:
-        $ python computeSales.py priceCatalogue.json salesRecord.json
+        $ python compute_sales.py priceCatalogue.json salesRecord.json
 
 Author: A00841954 Christian Erick Mercado Flores
 Date: February 2026
@@ -16,8 +21,29 @@ Date: February 2026
 import json
 import sys
 import time
+from datetime import datetime
+
 
 def load_json_file(filename):
+    """Load and parse a JSON file with comprehensive error handling.
+
+    This function attempts to open and parse a JSON file, handling common
+    errors such as missing files. All errors are caught and reported.
+
+    Args:
+        filename (str): Path to the JSON file to be loaded. Can be either
+            an absolute or relative path.
+
+    Returns:
+        list or dict or None: Parsed JSON data structure (typically a list
+            or dictionary), or None if any error occurs during file reading
+            or JSON parsing.
+
+    Example:
+        >>> data = load_json_file('catalogue.json')
+        >>> if data is not None:
+        ...     print(f"Loaded {len(data)} items")
+    """
     try:
         # Open file with UTF-8 encoding for international character support
         with open(filename, 'r', encoding='utf-8') as file:
@@ -29,7 +55,29 @@ def load_json_file(filename):
         print(f"Error reading '{filename}': {e}")
         return None
 
+
 def create_price_catalogue(catalogue_data):
+    """Create a dictionary mapping product titles to their prices.
+
+    This function processes the raw catalogue data and builds an efficient
+    lookup dictionary for price queries. It validates each product entry
+    and skips invalid items while reporting warnings to the user.
+
+    Args:
+        catalogue_data (list): List of product dictionaries from the JSON
+            catalogue file. Each dictionary should contain at minimum
+            'title' and 'price' keys.
+
+    Returns:
+        dict: Dictionary mapping product titles (str) to prices (float).
+            Returns empty dict if catalogue_data is invalid or not a list.
+
+    Example:
+        >>> catalogue = [{'title': 'Apple', 'price': 1.50}]
+        >>> prices = create_price_catalogue(catalogue)
+        >>> prices['Apple']
+        1.5
+    """
     # Initialize empty dictionary for price mappings
     price_map = {}
 
@@ -75,19 +123,12 @@ def create_price_catalogue(catalogue_data):
 
     return price_map
 
+
 def compute_sales(sales_data, price_catalogue):
     """Compute total sales cost from sales records and price catalogue.
 
     This function processes all sales records, validates each entry,
-    looks up prices from the catalogue, and calculates costs. It handles
-    various error conditions gracefully and continues processing valid
-    records even when some records are invalid.
-
-    Validation performed on each sale record:
-        - Record must be a dictionary
-        - Must have 'Product' and 'Quantity' fields
-        - Quantity must be convertible to integer
-        - Product must exist in price catalogue
+    looks up prices from the catalogue, and calculates costs.
 
     Args:
         sales_data (list): List of sale record dictionaries. Each record
@@ -187,7 +228,37 @@ def compute_sales(sales_data, price_catalogue):
 
     return total_cost, sales_details
 
+
 def format_output(sales_details, total_cost, elapsed_time, files):
+    """Format the sales report output with headers, data, and summary.
+
+    This function creates a human-readable report containing all sales
+    details, metadata about the execution, and summary statistics.
+
+    The report includes:
+        - Execution timestamp
+        - Source files used
+        - Detailed table of all sales
+        - Total sales cost
+        - Execution time
+
+    Args:
+        sales_details (list): List of dictionaries containing sale details
+            as returned by compute_sales().
+        total_cost (float): Total cost of all sales.
+        elapsed_time (float): Time in seconds taken to execute the program.
+        files (dict): Dictionary containing file paths with keys:
+            'soruce_file', 'catalogue_file', 'sales_file'.
+
+    Returns:
+        str: Formatted multi-line string containing the complete report,
+            ready to be printed or saved to a file.
+
+    Example:
+        >>> details = [{'sale_id': 1, 'product': 'Apple', ...}]
+        >>> report = format_output(details, 100.50, 0.025, {...})
+        >>> print(report)
+    """
     # Generate timestamp for this execution
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -238,7 +309,25 @@ def format_output(sales_details, total_cost, elapsed_time, files):
     # Join all lines with newlines and return complete report
     return "\n".join(lines)
 
+
 def save_results(output_text, filename):
+    """Save the formatted results to a text file.
+
+    This function appends the results to a file, creating the file if it
+    doesn't exist.
+
+    Args:
+        output_text (str): The formatted report text to save.
+        filename (str): Path to the output file. Parent directories must
+            already exist.
+
+    Returns:
+        None
+
+    Example:
+        >>> save_results("Report content...", "results/output.txt")
+        Results saved to 'results/output.txt'
+    """
     try:
         # Open file in append mode with UTF-8 encoding
         with open(filename, 'a', encoding='utf-8') as file:
@@ -250,7 +339,36 @@ def save_results(output_text, filename):
         # Report any I/O errors to user
         print(f"Error saving results to file: {e}")
 
+
 def main():
+    """Execute the main sales computation workflow.
+
+    This is the main entry point for the program. It orchestrates all
+    operations in the correct sequence:
+        1. Validate command line arguments
+        2. Load input files
+        3. Process catalogue and sales data
+        4. Compute results
+        5. Format and display output
+        6. Save results to file
+
+    The function handles errors at each step and exits gracefully if
+    critical errors occur (e.g., missing input files).
+
+    Command Line Arguments:
+        argv[1]: Path to price catalogue JSON file
+        argv[2]: Path to sales record JSON file
+
+    Returns:
+        None (exits with sys.exit() on error)
+
+    Exit Codes:
+        0: Successful execution
+        1: Invalid arguments or critical error
+
+    Example:
+        $ python computeSales.py catalogue.json sales.json
+    """
     # Validate correct number of command line arguments
     if len(sys.argv) != 3:
         print(
@@ -280,6 +398,13 @@ def main():
         print("Failed to load price catalogue. Exiting.")
         sys.exit(1)
 
+    # Load sales records from JSON file
+    sales_data = load_json_file(files['sales_file'])
+    if sales_data is None:
+        # Critical error: cannot proceed without sales data
+        print("Failed to load sales records. Exiting.")
+        sys.exit(1)
+
     # Build price lookup dictionary from catalogue
     price_catalogue = create_price_catalogue(catalogue_data)
     print(f"Loaded {len(price_catalogue)} products from catalogue...")
@@ -290,6 +415,10 @@ def main():
     print(f"Processed {len(sales_details)} valid sales records...")
     print("")
 
+    # Record end time and calculate elapsed time
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
     # Generate formatted report
     output_text = format_output(sales_details, total_cost, elapsed_time, files)
     # Display report to console
@@ -298,6 +427,7 @@ def main():
     # Save report to file for record keeping
     output_filename = "results/SalesResults.txt"
     save_results(output_text, output_filename)
+
 
 # Standard Python idiom to execute main() when script is run directly
 if __name__ == "__main__":
