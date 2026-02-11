@@ -75,6 +75,118 @@ def create_price_catalogue(catalogue_data):
 
     return price_map
 
+def compute_sales(sales_data, price_catalogue):
+    """Compute total sales cost from sales records and price catalogue.
+
+    This function processes all sales records, validates each entry,
+    looks up prices from the catalogue, and calculates costs. It handles
+    various error conditions gracefully and continues processing valid
+    records even when some records are invalid.
+
+    Validation performed on each sale record:
+        - Record must be a dictionary
+        - Must have 'Product' and 'Quantity' fields
+        - Quantity must be convertible to integer
+        - Product must exist in price catalogue
+
+    Args:
+        sales_data (list): List of sale record dictionaries. Each record
+            should contain 'SALE_ID', 'SALE_Date', 'Product', and
+            'Quantity' fields.
+        price_catalogue (dict): Dictionary mapping product names to prices,
+            as created by create_price_catalogue().
+
+    Returns:
+        tuple: A 2-tuple containing:
+            - total_cost (float): Sum of all valid sales costs
+            - sales_details (list): List of dictionaries containing detailed
+              information about each valid sale (sale_id, date, product,
+              quantity, unit_price, sales_cost)
+
+    Example:
+        >>> catalogue = {'Apple': 1.50, 'Orange': 2.00}
+        >>> sales = [{'Product': 'Apple', 'Quantity': 3}]
+        >>> total, details = compute_sales(sales, catalogue)
+        >>> total
+        4.5
+    """
+    # Initialize accumulator for total cost
+    total_cost = 0.0
+    # Initialize list to store detailed sale information
+    sales_details = []
+
+    # Validate that sales data is a list
+    if not isinstance(sales_data, list):
+        print("Error: Sales data is not a list.")
+        return total_cost, sales_details
+
+    # Process each sale record
+    for idx, sale in enumerate(sales_data):
+        # Validate record is a dictionary
+        if not isinstance(sale, dict):
+            print(f"Warning: Sale record {idx} is not a dictionary. Skipping.")
+            continue
+
+        # Extract required fields from sale record
+        product = sale.get('Product')
+        quantity = sale.get('Quantity')
+        # Extract optional fields with defaults
+        sale_id = sale.get('SALE_ID', 'N/A')
+        sale_date = sale.get('SALE_Date', 'N/A')
+
+        # Validate product field exists
+        if product is None:
+            print(
+                f"Warning: Sale record {idx} missing 'Product' field. "
+                "Skipping."
+            )
+            continue
+
+        # Validate quantity field exists
+        if quantity is None:
+            print(
+                f"Warning: Sale record {idx} missing 'Quantity' field. "
+                "Skipping."
+            )
+            continue
+
+        # Attempt to convert quantity to integer
+        try:
+            quantity = int(quantity)
+        except (ValueError, TypeError):
+            print(
+                f"Warning: Invalid quantity for sale {idx}. "
+                "Skipping."
+            )
+            continue
+
+        # Verify product exists in catalogue
+        if product not in price_catalogue:
+            print(
+                f"Warning: Product '{product}' not found in catalogue. "
+                "Skipping."
+            )
+            continue
+
+        # Look up unit price from catalogue
+        unit_price = price_catalogue[product]
+        # Calculate cost for this sale (price × quantity)
+        sales_cost = unit_price * quantity
+        # Add to running total
+        total_cost += sales_cost
+
+        # Store detailed information about this sale
+        sales_details.append({
+            'sale_id': sale_id,
+            'date': sale_date,
+            'product': product,
+            'quantity': quantity,
+            'unit_price': unit_price,
+            'sales_cost': sales_cost
+        })
+
+    return total_cost, sales_details
+
 def main():
     # Validate correct number of command line arguments
     if len(sys.argv) != 3:
@@ -108,6 +220,11 @@ def main():
     # Build price lookup dictionary from catalogue
     price_catalogue = create_price_catalogue(catalogue_data)
     print(f"Loaded {len(price_catalogue)} products from catalogue...")
+    print("")
+
+    # Process all sales and compute totals
+    total_cost, sales_details = compute_sales(sales_data, price_catalogue)
+    print(f"Processed {len(sales_details)} valid sales records...")
     print("")
 
 # Standard Python idiom to execute main() when script is run directly
