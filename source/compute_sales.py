@@ -29,6 +29,52 @@ def load_json_file(filename):
         print(f"Error reading '{filename}': {e}")
         return None
 
+def create_price_catalogue(catalogue_data):
+    # Initialize empty dictionary for price mappings
+    price_map = {}
+
+    # Validate that input is a list
+    if not isinstance(catalogue_data, list):
+        print("Error: Catalogue data is not a list.")
+        return price_map
+
+    # Process each item in the catalogue
+    for idx, item in enumerate(catalogue_data):
+        # Validate item is a dictionary
+        if not isinstance(item, dict):
+            print(
+                f"Warning: Item {idx} in catalogue is not a dictionary. "
+                "Skipping."
+            )
+            continue
+
+        # Extract title and price fields
+        title = item.get('title')
+        price = item.get('price')
+
+        # Validate title field exists
+        if title is None:
+            print(f"Warning: Item {idx} missing 'title' field. Skipping.")
+            continue
+
+        # Validate price field exists
+        if price is None:
+            print(
+                f"Warning: Item '{title}' missing 'price' field. Skipping.")
+            continue
+
+        # Attempt to convert price to float
+        try:
+            price = float(price)
+            # Add valid entry to price map
+            price_map[title] = price
+        except (ValueError, TypeError):
+            # Report conversion error and skip this item
+            print(f"Warning: Invalid price for '{title}'. Skipping.")
+            continue
+
+    return price_map
+
 def main():
     # Validate correct number of command line arguments
     if len(sys.argv) != 3:
@@ -58,6 +104,11 @@ def main():
         # Critical error: cannot proceed without catalogue
         print("Failed to load price catalogue. Exiting.")
         sys.exit(1)
+
+    # Build price lookup dictionary from catalogue
+    price_catalogue = create_price_catalogue(catalogue_data)
+    print(f"Loaded {len(price_catalogue)} products from catalogue...")
+    print("")
 
 # Standard Python idiom to execute main() when script is run directly
 if __name__ == "__main__":
