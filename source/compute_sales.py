@@ -187,6 +187,69 @@ def compute_sales(sales_data, price_catalogue):
 
     return total_cost, sales_details
 
+def format_output(sales_details, total_cost, elapsed_time, files):
+    # Generate timestamp for this execution
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Initialize list to store output lines
+    lines = []
+
+    # Add report header with decorative separator
+    lines.append("=" * 80)
+    lines.append("SALES REPORT")
+    lines.append("=" * 80)
+
+    # Add metadata section with execution details
+    lines.append(f"Timestamp: {timestamp}")
+    lines.append(f"Source File: {files['soruce_file']}")
+    lines.append(f"Price Catalogue File: {files['catalogue_file']}")
+    lines.append(f"Sales Record File: {files['sales_file']}")
+    lines.append("=" * 80)
+
+    # Check if there are any valid sales to display
+    if not sales_details:
+        lines.append("No valid sales records found.")
+    else:
+        # Add table header with column names
+        lines.append(
+            f"{'Sales ID':<10} {'Date':<10} {'Product':<30} "
+            f"{'Qty':<4} {'Price':<10} {'Sale Cost':<10}"
+        )
+        # Add separator line under header
+        lines.append("-" * 80)
+
+        # Add a row for each sale with aligned columns
+        for detail in sales_details:
+            lines.append(
+                f"{str(detail['sale_id']):<10} "
+                f"{detail['date']:<10} "
+                f"{detail['product']:<30} "
+                f"{detail['quantity']:<4} "
+                f"${detail['unit_price']:<9.2f} "
+                f"${detail['sales_cost']:<9.2f}"
+            )
+
+    # Add report footer with summary statistics
+    lines.append("=" * 80)
+    lines.append(f"TOTAL SALES COST: ${total_cost:.2f}")
+    lines.append(f"Execution time: {elapsed_time:.4f} seconds")
+    lines.append("=" * 80 + "\n")
+
+    # Join all lines with newlines and return complete report
+    return "\n".join(lines)
+
+def save_results(output_text, filename):
+    try:
+        # Open file in append mode with UTF-8 encoding
+        with open(filename, 'a', encoding='utf-8') as file:
+            # Write the complete report to file
+            file.write(output_text)
+        # Confirm successful save to user
+        print(f"\nResults saved to '{filename}'")
+    except OSError as e:
+        # Report any I/O errors to user
+        print(f"Error saving results to file: {e}")
+
 def main():
     # Validate correct number of command line arguments
     if len(sys.argv) != 3:
@@ -226,6 +289,15 @@ def main():
     total_cost, sales_details = compute_sales(sales_data, price_catalogue)
     print(f"Processed {len(sales_details)} valid sales records...")
     print("")
+
+    # Generate formatted report
+    output_text = format_output(sales_details, total_cost, elapsed_time, files)
+    # Display report to console
+    print(output_text)
+
+    # Save report to file for record keeping
+    output_filename = "results/SalesResults.txt"
+    save_results(output_text, output_filename)
 
 # Standard Python idiom to execute main() when script is run directly
 if __name__ == "__main__":
