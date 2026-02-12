@@ -304,7 +304,8 @@ def format_output(sales_details, total_cost, elapsed_time, files):
     lines.append("=" * 80)
     lines.append(f"TOTAL SALES COST: ${total_cost:.2f}")
     lines.append(f"Execution time: {elapsed_time:.4f} seconds")
-    lines.append("=" * 80 + "\n")
+    lines.append("=" * 80)
+    lines.append("\n")
 
     # Join all lines with newlines and return complete report
     return "\n".join(lines)

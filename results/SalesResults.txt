@@ -1,11 +1,3 @@
-(mna) cremercado@MacBook-Pro-2 A00841954_A5.2 % python source/compute_sales.py tests/TC1/TC1.ProductList.json tests/TC1/TC1.Sales.json
-
-Starting sales computation...
-
-Loaded 50 products from catalogue...
-
-Processed 46 valid sales records...
-
 ================================================================================
 SALES REPORT
 ================================================================================
@@ -66,17 +58,6 @@ Sales ID   Date       Product                        Qty  Price      Sale Cost
 TOTAL SALES COST: $2481.86
 Execution time: 0.0005 seconds
 ================================================================================
-
-
-
-Results saved to 'results/SalesResults.txt'
-(mna) cremercado@MacBook-Pro-2 A00841954_A5.2 % python source/compute_sales.py tests/TC1/TC1.ProductList.json tests/TC2/TC2.Sales.json
-
-Starting sales computation...
-
-Loaded 50 products from catalogue...
-
-Processed 46 valid sales records...
 
 ================================================================================
 SALES REPORT
@@ -139,19 +120,6 @@ TOTAL SALES COST: $166568.23
 Execution time: 0.0007 seconds
 ================================================================================
 
-
-
-Results saved to 'results/SalesResults.txt'
-(mna) cremercado@MacBook-Pro-2 A00841954_A5.2 % python source/compute_sales.py tests/TC1/TC1.ProductList.json tests/TC3/TC3.Sales.json
-
-Starting sales computation...
-
-Loaded 50 products from catalogue...
-
-Warning: Product 'Elotes' not found in catalogue. Skipping.
-Warning: Product 'Frijoles' not found in catalogue. Skipping.
-Processed 44 valid sales records...
-
 ================================================================================
 SALES REPORT
 ================================================================================
@@ -211,7 +179,3 @@ TOTAL SALES COST: $165235.37
 Execution time: 0.0015 seconds
 ================================================================================
 
-
-
-Results saved to 'results/SalesResults.txt'
-(mna) cremercado@MacBook-Pro-2 A00841954_A5.2 % 
