@@ -1,6 +1,6 @@
 # 5.2 Ejercicio de programación 2 y análisis estático
 
-Colección de utilidades en Python desarrolladas como parte del ejercicio de la asignatura "Pruebas de software y aseguramiento de la calidad".
+... como parte del ejercicio de la asignatura "Pruebas de software y aseguramiento de la calidad".
 
 ## Descripción
 
@@ -22,10 +22,7 @@ Colección de utilidades en Python desarrolladas como parte del ejercicio de la 
 python source/compute_statistics.py priceCatalogue.json salesRecord.json
 ```
 
-```
-
 ## Estructura del Proyecto
-
 ```
 ├── source/                                         # Código fuente de los ejercicios
 │   └── compute_statistics.py                       # Ejercicio 1. Compute sales
